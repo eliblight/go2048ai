@@ -107,7 +107,7 @@ func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
 	//	}
 	l := len(v)
 	if l == 1 {
-		fmt.Println("len=1 => exit", v)
+//		fmt.Println("len=1 => exit", v)
 		return 0, false
 	}
 
@@ -120,7 +120,7 @@ func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
 			xi, yi := v[i].xy()
 			vi := b.get(xi, yi)
 			if vi != 0 {
-				fmt.Println("move non zero ", vi)
+//				fmt.Println("move non zero ", vi)
 				b.set(x0, y0, vi)
 				b.set(xi, yi, 0)
 				score, _ = b.collapse(v[:])
@@ -139,7 +139,7 @@ func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
 			continue
 		}
 		if v0 == vi {
-			fmt.Println("merge ", vi)
+//			fmt.Println("merge ", vi)
 			b.set(x0, y0, vi*2)
 			b.set(xi, yi, 0)
 			score, _ = b.collapse(v[1:])
