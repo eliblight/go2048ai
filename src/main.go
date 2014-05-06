@@ -1,6 +1,7 @@
-package src
+package main
 
 import (
+	"src/board"
 	"fmt"
 	"math/rand"
 )
@@ -30,7 +31,8 @@ func main() {
 		if keep_going {
 			fmt.Println("right")
 			continue
-		}		 
+		}	
+		
 		score, keep_going = b.CollapseDirection(Up)
 		if keep_going {
 			fmt.Println("up")
