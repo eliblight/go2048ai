@@ -1,4 +1,4 @@
-package src
+package client
 
 import (
 	"fmt"
@@ -40,11 +40,12 @@ const (
 // as expressed by a set of TupleVectors
 var direction_map map[Direction][]TupleVector
 
+func convertArrayToSliceVector(a [4][4]Tuple) []TupleVector {
+	
+}
+
 func init() {
-	l := make([]TupleVector, 4)
-	r := make([]TupleVector, 4)
-	u := make([]TupleVector, 4)
-	d := make([]TupleVector, 4)
+	var l,r,u,d [4][4]Tuple
 	for j := 0; j < 4; j++ {
 		for i := 0; i < 4; i++ {
 			t := Tuple{i, j}
@@ -72,7 +73,7 @@ func (b *Board) set(x, y, v int) {
 	b.cells[x][y] = v
 }
 
-func (b *Board) print() {
+func (b *Board) Print() {
 	for y := 0; y < 4; y++ {
 		for x := 0; x < 4; x++ {
 			fmt.Print(b.get(x, y))
@@ -103,7 +104,7 @@ func (b *Board) getRandomEmtpyCell() (int, int) {
 	return cell[0], cell[1]
 }
 
-func (b *Board) fillRandomEmptyCell() {
+func (b *Board) FillRandomEmptyCell() {
 	x, y := b.getRandomEmtpyCell()
 	b.set(x, y, GetStartValue())
 }
