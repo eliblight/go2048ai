@@ -26,27 +26,39 @@ func (p *TupleVector) append(t Tuple) {
 	(*p)[l] = t
 }
 
-var direction_map = map[string][]TupleVector{
-	"left": {
-		{{0, 0}, {1, 0}, {2, 0}, {3, 0}},
-		{{0, 1}, {1, 1}, {2, 1}, {3, 1}},
-		{{0, 2}, {1, 2}, {2, 2}, {3, 2}},
-		{{0, 3}, {1, 3}, {2, 3}, {3, 3}}},
-	"right": {
-		{{3, 0}, {2, 0}, {1, 0}, {0, 0}},
-		{{3, 1}, {2, 1}, {1, 1}, {0, 1}},
-		{{3, 2}, {2, 2}, {1, 2}, {0, 2}},
-		{{3, 3}, {2, 3}, {1, 3}, {0, 3}}},
-	"up": {
-		{{0, 0}, {0, 1}, {0, 2}, {0, 3}},
-		{{1, 0}, {1, 1}, {1, 2}, {1, 3}},
-		{{2, 0}, {2, 1}, {2, 2}, {2, 3}},
-		{{3, 0}, {3, 1}, {3, 2}, {3, 3}}},
-	"down": {
-		{{0, 3}, {0, 2}, {0, 1}, {0, 0}},
-		{{1, 3}, {1, 2}, {1, 1}, {1, 0}},
-		{{2, 3}, {2, 2}, {2, 1}, {2, 0}},
-		{{3, 3}, {3, 2}, {3, 1}, {3, 0}}}}
+// Direction enum		
+type Direction int
+
+const (
+	Left  Direction = iota
+	Right           = iota
+	Up              = iota
+	Down            = iota
+)
+
+// Declare a map from direction to its scaning sequence
+// as expressed by a set of TupleVectors
+var direction_map map[Direction][]TupleVector
+
+func init() {
+	l := make([]TupleVector, 4)
+	r := make([]TupleVector, 4)
+	u := make([]TupleVector, 4)
+	d := make([]TupleVector, 4)
+	for j := 0; j < 4; j++ {
+		for i := 0; i < 4; i++ {
+			t := Tuple{i, j}
+			l[i][j] = t
+			r[3-i][j] = t
+			u[j][i] = t
+			d[3-j][i] = t
+		}
+	}
+	direction_map[Left] = l
+	direction_map[Right] = r
+	direction_map[Up] = u
+	direction_map[Down] = d
+}
 
 type Board struct {
 	cells [4][4]int
@@ -97,22 +109,16 @@ func (b *Board) fillRandomEmptyCell() {
 }
 
 func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
-	// recursion exit point
-	//	{
-	//		fmt.Print("v=")
-	//		for _, t := range v {
-	//			fmt.Print(b.get(t.xy())," ")
-	//		}
-	//		fmt.Println()
-	//	}
+	// single element, recursion exit point
 	l := len(v)
 	if l == 1 {
-//		fmt.Println("len=1 => exit", v)
+		//		fmt.Println("len=1 => exit", v)
 		return 0, false
 	}
 
 	// If first emelent zero, look for the first non zero element and move it
-	// there. If non found recursion end.
+	// there and re-scan. If none found, recursion end.
+	// i.e. 0222 => 2022, collapse(2022)
 	x0, y0 := v[0].xy()
 	v0 := b.get(x0, y0)
 	if v0 == 0 {
@@ -120,18 +126,17 @@ func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
 			xi, yi := v[i].xy()
 			vi := b.get(xi, yi)
 			if vi != 0 {
-//				fmt.Println("move non zero ", vi)
 				b.set(x0, y0, vi)
 				b.set(xi, yi, 0)
 				score, _ = b.collapse(v[:])
 				return score, true
 			}
 		}
-		//		fmt.Println("All zeros => bailout")
 		return 0, false
 	}
-	// ...else look for the next non zero element if its the same as v0
-	// combine them
+	// ...so first element is non zero, look for the next non zero element if
+	// its the same as v0 combine them and dive in.
+	// i.e. 2022 => 4002, collapse (002)
 	for i := 1; i < l; i++ {
 		xi, yi := v[i].xy()
 		vi := b.get(xi, yi)
@@ -139,7 +144,6 @@ func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
 			continue
 		}
 		if v0 == vi {
-//			fmt.Println("merge ", vi)
 			b.set(x0, y0, vi*2)
 			b.set(xi, yi, 0)
 			score, _ = b.collapse(v[1:])
@@ -147,14 +151,14 @@ func (b *Board) collapse(v TupleVector) (score int, did_something bool) {
 		}
 		break
 	}
+	// ...so first element is non zero and next non zero element is different
+	// just dive in.
+	// i.e. 4022, collapse(022) 
 	return b.collapse(v[1:])
 }
 
-func (b *Board) goDir(dir string) (score int, done_something bool) {
-	
-	done_something = false
-	score = 0
-	tvv, _ := direction_map[dir]
+func (b *Board) CollapseDirection(direction Direction) (score int, done_something bool) {
+	tvv, _ := direction_map[direction]
 	for _, tv := range tvv {
 		s, d := b.collapse(tv)
 		score += s
@@ -163,19 +167,24 @@ func (b *Board) goDir(dir string) (score int, done_something bool) {
 	return score, done_something
 }
 
-func (b *Board) left() (score int, done_something bool) {
-	return b.goDir("left")
+func (b *Board) IsFin() bool {
+	// if there is any zero its not done
+	for y := 0; y < 4; y++ {
+		for x := 0; x < 4; x++ {
+			if b.get(x, y) == 0 {
+				return false
+			}
+		}
+	}
+	// Board is full of values, if there are two adject same value
+	// cells they can be collapsed. 
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if b.get(i, j) == b.get(i+1, j) ||
+				b.get(i, j) == b.get(i, j+1) {
+				return false
+			}
+		}
+	}
+	return true
 }
-
-func (b *Board) right() (score int, done_something bool) {
-	return b.goDir("right")
-}
-
-func (b *Board) up() (score int, done_something bool) {
-	return b.goDir("up")
-}
-
-func (b *Board) down() (score int, done_something bool) {
-	return b.goDir("down")
-}
-

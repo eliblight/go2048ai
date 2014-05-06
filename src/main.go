@@ -16,22 +16,22 @@ func main() {
 		fmt.Println("score", tscore)
 		b.fillRandomEmptyCell()
 		b.print()
-		score, keep_going = b.down()
+		score, keep_going = b.CollapseDirection(Down)
 		if keep_going {
-			fmt.Println("down")
+			fmt.Println("Down")
 			continue
 		}
-		score, keep_going = b.left()
+		score, keep_going = b.CollapseDirection(Left)
 		if keep_going {
 			fmt.Println("left")
 			continue
 		}
-		score, keep_going = b.right()
+		score, keep_going = b.CollapseDirection(Right)
 		if keep_going {
 			fmt.Println("right")
 			continue
 		}		 
-		score, keep_going = b.up()
+		score, keep_going = b.CollapseDirection(Up)
 		if keep_going {
 			fmt.Println("up")
 			continue
