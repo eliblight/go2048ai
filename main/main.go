@@ -6,37 +6,38 @@ import (
 	"math/rand"
 )
 
+func MyMoveFunc(board client.Board, score int) client.Direction {
+	fmt.Println("Score: ",score)
+	board.Print()
+	var can_move bool
+
+	_, can_move = board.CollapseDirection(client.Down)
+	if can_move {
+		fmt.Println("Down")
+		return client.Down
+	}
+	_, can_move = board.CollapseDirection(client.Left)
+	if can_move {
+		fmt.Println("Left")
+		return client.Left
+	}
+	_, can_move = board.CollapseDirection(client.Right)
+	if can_move {
+		fmt.Println("Right")
+		return client.Right
+	}
+	_, can_move = board.CollapseDirection(client.Up)
+	if can_move {
+		fmt.Println("Up")
+		return client.Up
+	}
+	panic("Cant move nowhere")		
+}
+
 func main() {
 	rand.Seed(5)
-	var b *client.Board = new(client.Board)
-	keep_going := true
-	score := 0
-	tscore := 0
-	for keep_going {
-		tscore += score
-		fmt.Println("score", tscore)
-		b.FillRandomEmptyCell()
-		b.Print()
-		score, keep_going = b.CollapseDirection(client.Down)
-		if keep_going {
-			fmt.Println("Down")
-			continue
-		}
-		score, keep_going = b.CollapseDirection(client.Left)
-		if keep_going {
-			fmt.Println("left")
-			continue
-		}
-		score, keep_going = b.CollapseDirection(client.Right)
-		if keep_going {
-			fmt.Println("right")
-			continue
-		}	
-		
-		score, keep_going = b.CollapseDirection(client.Up)
-		if keep_going {
-			fmt.Println("up")
-			continue
-		}		 
-	}
+	board, score := client.NewGame(MyMoveFunc)
+	fmt.Println("------ FIN -------")
+	fmt.Println("Score: ",score)
+	board.Print()
 }
