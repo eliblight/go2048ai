@@ -36,30 +36,28 @@ const (
 	Down            = iota
 )
 
-// Declare a map from direction to its scaning sequence
-// as expressed by a set of TupleVectors
-var direction_map map[Direction][]TupleVector
+var direction_map = map[Direction][]TupleVector{
+	Left: {
+		{{0, 0}, {1, 0}, {2, 0}, {3, 0}},
+		{{0, 1}, {1, 1}, {2, 1}, {3, 1}},
+		{{0, 2}, {1, 2}, {2, 2}, {3, 2}},
+		{{0, 3}, {1, 3}, {2, 3}, {3, 3}}},
+	Right: {
+		{{3, 0}, {2, 0}, {1, 0}, {0, 0}},
+		{{3, 1}, {2, 1}, {1, 1}, {0, 1}},
+		{{3, 2}, {2, 2}, {1, 2}, {0, 2}},
+		{{3, 3}, {2, 3}, {1, 3}, {0, 3}}},
+	Up: {
+		{{0, 0}, {0, 1}, {0, 2}, {0, 3}},
+		{{1, 0}, {1, 1}, {1, 2}, {1, 3}},
+		{{2, 0}, {2, 1}, {2, 2}, {2, 3}},
+		{{3, 0}, {3, 1}, {3, 2}, {3, 3}}},
+	Down: {
+		{{0, 3}, {0, 2}, {0, 1}, {0, 0}},
+		{{1, 3}, {1, 2}, {1, 1}, {1, 0}},
+		{{2, 3}, {2, 2}, {2, 1}, {2, 0}},
+		{{3, 3}, {3, 2}, {3, 1}, {3, 0}}}}
 
-func convertArrayToSliceVector(a [4][4]Tuple) []TupleVector {
-	
-}
-
-func init() {
-	var l,r,u,d [4][4]Tuple
-	for j := 0; j < 4; j++ {
-		for i := 0; i < 4; i++ {
-			t := Tuple{i, j}
-			l[i][j] = t
-			r[3-i][j] = t
-			u[j][i] = t
-			d[3-j][i] = t
-		}
-	}
-	direction_map[Left] = l
-	direction_map[Right] = r
-	direction_map[Up] = u
-	direction_map[Down] = d
-}
 
 type Board struct {
 	cells [4][4]int

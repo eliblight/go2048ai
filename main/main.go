@@ -38,6 +38,5 @@ func main() {
 			fmt.Println("up")
 			continue
 		}		 
-				 
 	}
 }
