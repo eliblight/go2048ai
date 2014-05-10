@@ -177,10 +177,10 @@ func (b *Board) IsFin() bool {
 	}
 	// Board is full of values, if there are two adject same value
 	// cells they can be collapsed. 
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			if b.get(i, j) == b.get(i+1, j) ||
-				b.get(i, j) == b.get(i, j+1) {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if (i < 3 && b.get(i, j) == b.get(i+1, j)) ||
+				(j < 3 && b.get(i, j) == b.get(i, j+1)) {
 				return false
 			}
 		}
